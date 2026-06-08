@@ -30,7 +30,7 @@ The simulator follows the **Piecewise Dynamic Recursive Function** logic:
 
 Follow these steps to explore the behavior of different network protocols:
 
-1. **Access the Simulator**: Visit the [Live Demo](https://leotks0930.github.io/tcp-congestion-control-visualizer/) directly in your web browser.
+1. **Access the Simulator**: Visit the [Live Demo](https://leotks0930.github.io/tcp-congestion-control-visualizer/tcp.hmtml) directly in your web browser.
 2. **Configure Parameters**:
    * **Algorithm Selection**: Choose between Tahoe, Reno, CUBIC, or BBR to observe different growth patterns.
    * **Loss Ceiling**: Set the maximum threshold before the algorithm triggers a congestion response.

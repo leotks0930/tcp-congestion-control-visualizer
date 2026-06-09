@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -7,56 +8,79 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Base & Reset */
-        *, *::before, *::after { box-sizing: border-box; }
-        body { 
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Microsoft JhengHei'; 
-            margin: 0; 
-            padding: 10px; 
-            background-color: #f8fafc; 
-            color: #0f172a; 
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Microsoft JhengHei';
+            margin: 0;
+            padding: 10px;
+            background-color: #f8fafc;
+            color: #0f172a;
             line-height: 1.5;
         }
 
         /* Header */
-        .header-container { 
-            display: flex; 
-            flex-direction: column; 
+        .header-container {
+            display: flex;
+            flex-direction: column;
             gap: 15px;
-            justify-content: space-between; 
-            align-items: center; 
-            background: #ffffff; 
-            padding: 15px 20px; 
-            border-radius: 12px; 
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); 
-            margin-bottom: 15px; 
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 15px;
             border-bottom: 4px solid #3b82f6;
             text-align: center;
         }
-        h2#main-title { margin: 0; font-size: 1.25rem; font-weight: 700; color: #1e293b; }
-        .lang-btn { 
-            background-color: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; 
-            padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; 
-            transition: all 0.2s ease; width: 100%;
+
+        h2#main-title {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
         }
-        .lang-btn:hover { background-color: #3b82f6; color: white; border-color: #3b82f6; }
+
+        .lang-btn {
+            background-color: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .lang-btn:hover {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
 
         /* Layout Container */
-        .main-container { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 20px; 
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
         /* Control Panel */
-        .control-panel { 
-            width: 100%; 
-            padding: 20px; 
-            border-radius: 12px; 
-            background: #ffffff; 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); 
+        .control-panel {
+            width: 100%;
+            padding: 20px;
+            border-radius: 12px;
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             border: 1px solid #e2e8f0;
         }
-        
+
         .panel-header {
             display: flex;
             flex-direction: column;
@@ -65,192 +89,427 @@
             border-bottom: 1px solid #e2e8f0;
             padding-bottom: 15px;
         }
-        
-        #panel-title { margin: 0; font-size: 1.1rem; font-weight: 700; color: #0f172a; }
+
+        #panel-title {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
 
         /* Display Panel */
-        .display-panel { 
-            width: 100%; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 20px; 
-            min-width: 0; 
+        .display-panel {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 0;
         }
-        
-        .card { 
-            background: #ffffff; 
-            padding: 15px; 
-            border-radius: 12px; 
-            border: 1px solid #e2e8f0; 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); 
+
+        .card {
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             overflow: hidden;
         }
 
         /* Forms & Inputs */
-        .form-group { margin-bottom: 16px; }
-        .form-group label { 
-            display: flex; 
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background-color: #f8fafc;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: flex;
             justify-content: space-between;
             align-items: center;
-            font-weight: 600; 
-            margin-bottom: 8px; 
-            font-size: 0.875rem; 
-            color: #334155; 
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+            color: #334155;
         }
-        .form-group select, .form-group input[type="text"] { 
-            width: 100%; 
-            padding: 12px; 
-            border: 1px solid #cbd5e1; 
-            border-radius: 8px; 
+
+        .form-group select,
+        .form-group input[type="text"],
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
             font-size: 0.9rem;
             background-color: #f8fafc;
             color: #0f172a;
             transition: border-color 0.2s;
         }
-        .form-group select:focus, .form-group input[type="text"]:focus {
+
+        .form-group select:focus,
+        .form-group input[type="text"]:focus,
+        .form-group input[type="number"]:focus {
             outline: none;
             border-color: #3b82f6;
             background-color: #ffffff;
         }
-        .form-group input[type="range"] { 
-            width: 100%; 
+
+        .form-group input[type="range"] {
+            width: 100%;
             margin: 10px 0;
             cursor: pointer;
         }
-        .slider-val { 
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; 
-            color: #2563eb; 
-            font-weight: 700; 
+
+        .slider-val {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            color: #2563eb;
+            font-weight: 700;
             background: #eff6ff;
             padding: 2px 8px;
             border-radius: 4px;
         }
 
         /* Buttons */
-        .btn-grid { 
-            display: grid; 
-            grid-template-columns: 1fr; 
-            gap: 12px; 
-            margin-top: 20px; 
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 20px;
         }
-        button { 
-            border: none; 
-            padding: 14px 16px; 
-            border-radius: 8px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            font-size: 0.9rem; 
-            transition: all 0.2s ease; 
-            text-align: center; 
+
+        button {
+            border: none;
+            padding: 14px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            text-align: center;
             width: 100%;
         }
-        .btn-primary { background: #10b981; color: white; box-shadow: 0 2px 4px rgba(16,185,129,0.2); }
-        .btn-primary:hover { background: #059669; transform: translateY(-1px); }
-        .btn-secondary { background: #6366f1; color: white; box-shadow: 0 2px 4px rgba(99,102,241,0.2); }
-        .btn-secondary:hover { background: #4f46e5; transform: translateY(-1px); }
-        .btn-warning { background: #f59e0b; color: white; box-shadow: 0 2px 4px rgba(245,158,11,0.2); }
-        .btn-warning:hover { background: #d97706; transform: translateY(-1px); }
-        .btn-danger { background: #ef4444; color: white; box-shadow: 0 2px 4px rgba(239,68,68,0.3); }
-        .btn-danger:hover:not(:disabled) { background: #dc2626; transform: translateY(-1px); }
-        .btn-danger:disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; box-shadow: none; }
+
+        .btn-primary {
+            background: #10b981;
+            color: white;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #6366f1;
+            color: white;
+            box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: #4f46e5;
+            transform: translateY(-1px);
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+            box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger:disabled {
+            background: #e2e8f0;
+            color: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
 
         /* Badges & Indicators */
-        .mode-badge { 
-            display: inline-block; padding: 4px 12px; border-radius: 20px; 
-            font-size: 0.8rem; font-weight: 700; text-align: center;
+        .mode-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-align: center;
         }
-        .mode-discrete { background: #e0f2fe; color: #0369a1; }
-        .mode-rt { background: #fef3c7; color: #b45309; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        .mode-discrete {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .mode-rt {
+            background: #fef3c7;
+            color: #b45309;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+        }
 
         /* Visual Pipe Component */
-        .pipe-container { 
-            display: flex; align-items: center; justify-content: space-between; 
-            background: #1e293b; padding: 12px; border-radius: 8px; color: white; 
-            position: relative; overflow: hidden; margin-bottom: 5px;
+        .pipe-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #1e293b;
+            padding: 12px;
+            border-radius: 8px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 5px;
         }
-        .pipe-lane { 
-            flex-grow: 1; height: 12px; background: #334155; margin: 0 10px; 
-            border-radius: 6px; position: relative; overflow: hidden; border: 1px solid #475569; 
+
+        .pipe-lane {
+            flex-grow: 1;
+            height: 12px;
+            background: #334155;
+            margin: 0 10px;
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #475569;
         }
-        .packet-stream { 
-            position: absolute; width: 100%; height: 100%; top: 0; left: -100%; 
-            background: linear-gradient(90deg, transparent, #38bdf8, transparent); 
+
+        .packet-stream {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: -100%;
+            background: linear-gradient(90deg, transparent, #38bdf8, transparent);
         }
-        .pipe-node { font-size: 0.75rem; font-weight: 700; background: #475569; padding: 4px 8px; border-radius: 4px; z-index: 2; }
-        .pipe-overflow { border: 2px solid #ef4444 !important; background: #451a1a !important; animation: shake 0.2s linear 3; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+
+        .pipe-node {
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: #475569;
+            padding: 4px 8px;
+            border-radius: 4px;
+            z-index: 2;
+        }
+
+        .pipe-overflow {
+            border: 2px solid #ef4444 !important;
+            background: #451a1a !important;
+            animation: shake 0.2s linear 3;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-4px);
+            }
+
+            75% {
+                transform: translateX(4px);
+            }
+        }
 
         /* Summary & Chart */
-        .summary-box { 
-            background-color: #eff6ff; border-left: 5px solid #3b82f6; 
-            padding: 15px; font-weight: 600; font-size: 0.9rem; border-radius: 0 8px 8px 0; color: #1e40af;
+        .summary-box {
+            background-color: #eff6ff;
+            border-left: 5px solid #3b82f6;
+            padding: 15px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: 0 8px 8px 0;
+            color: #1e40af;
         }
-        .chart-container { position: relative; height: 300px; width: 100%; }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
 
         /* Tables */
-        .table-wrapper { 
-            max-height: 250px; 
+        .table-wrapper {
+            max-height: 250px;
             height: 250px;
-            overflow-y: auto; 
-            overflow-x: auto; 
-            border: 1px solid #e2e8f0; 
-            border-radius: 8px; 
+            overflow-y: auto;
+            overflow-x: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
             -webkit-overflow-scrolling: touch;
         }
-        .matrix-table { width: 100%; border-collapse: collapse; min-width: 400px; }
-        .matrix-table th, .matrix-table td { border-bottom: 1px solid #e2e8f0; padding: 10px 12px; text-align: left; font-size: 0.85rem; white-space: nowrap; }
-        .matrix-table th { background-color: #f8fafc; font-weight: 700; position: sticky; top: 0; z-index: 1; }
-        .matrix-table tr:hover { background-color: #f1f5f9; }
+
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 400px;
+        }
+
+        .matrix-table th,
+        .matrix-table td {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .matrix-table th {
+            background-color: #f8fafc;
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .matrix-table tr:hover {
+            background-color: #f1f5f9;
+        }
 
         /* Canvas / Image Section */
         .image-sim-header {
-            display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
         }
-        .image-sim-title { 
-            font-size: 1rem; font-weight: 700; color: #0f172a; 
+
+        .image-sim-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
         }
+
         .real-img-progress {
-            color: #2563eb; font-family: ui-monospace, monospace; font-size: 1.15rem; font-weight: bold;
+            color: #2563eb;
+            font-family: ui-monospace, monospace;
+            font-size: 1.15rem;
+            font-weight: bold;
         }
-        .canvas-container { 
-            width: 100%; aspect-ratio: 16/9; 
-            background: repeating-linear-gradient(45deg, #f8fafc, #f8fafc 10px, #e2e8f0 10px, #e2e8f0 20px); 
-            border-radius: 8px; overflow: hidden; position: relative; border: 1px solid #cbd5e1; 
-            display: flex; align-items: center; justify-content: center; 
+
+        .canvas-container {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: repeating-linear-gradient(45deg, #f8fafc, #f8fafc 10px, #e2e8f0 10px, #e2e8f0 20px);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        canvas { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
 
         /* --- Media Queries for Tablet / Desktop --- */
         @media (min-width: 576px) {
-            .btn-grid { grid-template-columns: 1fr 1fr; }
-            .btn-secondary, .btn-danger { grid-column: span 2; }
-            .image-sim-header { flex-direction: row; justify-content: space-between; align-items: center; }
+            .btn-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .btn-secondary,
+            .btn-danger {
+                grid-column: span 2;
+            }
+
+            .image-sim-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
         }
 
         @media (min-width: 768px) {
-            body { padding: 20px; }
-            .header-container { flex-direction: row; text-align: left; padding: 20px 30px; }
-            .lang-btn { width: auto; }
-            h2#main-title { font-size: 1.5rem; }
+            body {
+                padding: 20px;
+            }
+
+            .header-container {
+                flex-direction: row;
+                text-align: left;
+                padding: 20px 30px;
+            }
+
+            .lang-btn {
+                width: auto;
+            }
+
+            h2#main-title {
+                font-size: 1.5rem;
+            }
         }
 
         @media (min-width: 992px) {
-            .main-container { flex-direction: row; align-items: flex-start; }
-            .control-panel { 
-                width: 360px; 
+            .main-container {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+
+            .control-panel {
+                width: 360px;
                 flex-shrink: 0;
                 position: sticky;
                 top: 20px;
                 max-height: calc(100vh - 40px);
                 overflow-y: auto;
             }
-            .panel-header { flex-direction: row; justify-content: space-between; align-items: center; }
-            .display-panel { flex-grow: 1; }
-            .card { padding: 20px; }
+
+            .panel-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .display-panel {
+                flex-grow: 1;
+            }
+
+            .card {
+                padding: 20px;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <div class="header-container">
@@ -276,33 +535,43 @@
             </div>
 
             <div class="form-group">
-                <label><span id="lbl-cwnd">初始窗口首項 CWND₁ (MSS)：</span> <span class="slider-val" id="val-cwnd1">1</span></label>
+                <label><span id="lbl-cwnd">初始窗口首項 CWND₁ (MSS)：</span> <span class="slider-val"
+                        id="val-cwnd1">1</span></label>
                 <input type="range" id="cwnd1" value="1" min="1" max="50" step="1" oninput="syncSliderVal(this)">
             </div>
             <div class="form-group">
-                <label><span id="lbl-ssthresh">動態慢啟動閾值 ssthresh：</span> <span class="slider-val" id="val-ssthresh">64</span></label>
-                <input type="range" id="ssthresh" value="64" min="2" max="200" step="1" oninput="syncSliderVal(this); updateRuntimeParams();">
+                <label><span id="lbl-ssthresh">動態慢啟動閾值 ssthresh：</span> <span class="slider-val"
+                        id="val-ssthresh">64</span></label>
+                <input type="range" id="ssthresh" value="64" min="2" max="200" step="1"
+                    oninput="syncSliderVal(this); updateRuntimeParams();">
             </div>
             <div class="form-group">
-                <label><span id="lbl-loss">動態網路耐受上限 Loss (MSS)：</span> <span class="slider-val" id="val-loss">128</span></label>
-                <input type="range" id="loss" value="128" min="1" max="300" step="1" oninput="syncSliderVal(this); updateRuntimeParams();">
+                <label><span id="lbl-loss">動態網路耐受上限 Loss (MSS)：</span> <span class="slider-val"
+                        id="val-loss">128</span></label>
+                <input type="range" id="loss" value="128" min="1" max="300" step="1"
+                    oninput="syncSliderVal(this); updateRuntimeParams();">
             </div>
-            
+
             <div class="form-group" id="droprate-group">
-                <label><span id="lbl-droprate">自動隨機丟包率 Drop Rate (%)：</span> <span class="slider-val" id="val-droprate">0</span></label>
-                <input type="range" id="droprate" value="0" min="0" max="100" step="0.5" oninput="syncSliderVal(this); updateRuntimeParams();">
+                <label><span id="lbl-droprate">自動隨機丟包率 Drop Rate (%)：</span> <span class="slider-val"
+                        id="val-droprate">0</span></label>
+                <input type="range" id="droprate" value="0" min="0" max="100" step="0.5"
+                    oninput="syncSliderVal(this); updateRuntimeParams();">
             </div>
 
             <div class="form-group" id="speed-group" style="display:none;">
-                <label><span id="lbl-speed">實時模擬 RTT 步長速度 (ms)：</span> <span class="slider-val" id="val-speed">600</span></label>
-                <input type="range" id="speed" value="600" min="0" max="1000" step="10" oninput="syncSliderVal(this); restartTimerIfRunning();">
+                <label><span id="lbl-speed">實時模擬 RTT 步長速度 (ms)：</span> <span class="slider-val"
+                        id="val-speed">600</span></label>
+                <input type="range" id="speed" value="600" min="0" max="1000" step="10"
+                    oninput="syncSliderVal(this); restartTimerIfRunning();">
             </div>
 
             <div class="btn-grid">
                 <button class="btn-primary" id="btn-discrete" onclick="switchMode('discrete')">20輪靜態迭代</button>
                 <button class="btn-warning" id="btn-reset" onclick="hardReset()">重置環境</button>
                 <button class="btn-secondary" id="btn-realtime" onclick="switchMode('realtime')">啟動實時串流</button>
-                <button class="btn-danger" id="btn-drop" onclick="triggerSuddenDrop()" disabled>⚠️ 突然丟包一次 (Trigger Sudden Drop)</button>
+                <button class="btn-danger" id="btn-drop" onclick="triggerSuddenDrop()" disabled>⚠️ 突然丟包一次 (Trigger
+                    Sudden Drop)</button>
             </div>
         </div>
 
@@ -316,7 +585,7 @@
             </div>
 
             <div class="summary-box" id="summaryReport"></div>
-            
+
             <div class="card">
                 <div class="chart-container">
                     <canvas id="bilingualCongestionChart"></canvas>
@@ -338,7 +607,63 @@
                     </table>
                 </div>
             </div>
-            
+
+            <div class="card" id="batch-sim-card">
+                <div class="panel-header" style="margin-bottom: 10px; padding-bottom: 5px;">
+                    <h3 id="panel-title-batch" style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #0f172a;">
+                        多樣本蒙地卡羅統計分析</h3>
+                </div>
+                <div class="form-group" style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 110px;">
+                        <label>測試 Loss:</label>
+                        <select id="batchLoss" class="form-control">
+                            <option value="64">64 MSS</option>
+                            <option value="128" selected>128 MSS</option>
+                            <option value="256">256 MSS (LFN)</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1; min-width: 110px;">
+                        <label>測試 Drop Rate:</label>
+                        <select id="batchDropRate" class="form-control">
+                            <option value="5">5% (輕度)</option>
+                            <option value="10">10% (中度)</option>
+                            <option value="20">20% (嚴苛)</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1; min-width: 110px;">
+                        <label>單次實驗輪次 (Rounds):</label>
+                        <input type="number" id="batchRounds" class="form-control" value="100" min="10" max="1000">
+                    </div>
+                    <div style="flex: 1; min-width: 110px;">
+                        <label>重複執行次數 (Runs):</label>
+                        <input type="number" id="batchRuns" class="form-control" value="20" min="1" max="1000">
+                    </div>
+                </div>
+                <button class="btn-secondary" onclick="runBatchSimulation()" style="width: 100%; margin-bottom: 15px;">▶
+                    執行大樣本多輪次統計對比</button>
+
+                <div class="table-wrapper" style="max-height: none; height: auto;">
+                    <table class="matrix-table" id="batchResultsTable">
+                        <thead>
+                            <tr>
+                                <th>演算法</th>
+                                <th>總平均吞吐量 (CWND)</th>
+                                <th>波動標準差 (σ)</th>
+                                <th>影像平均完成輪次 (n)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #64748b;">點擊上方按鈕執行統計分析</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="chart-container" style="margin-top: 20px; height: 350px;">
+                    <canvas id="batchCongestionChart"></canvas>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="image-sim-header">
                     <div class="image-sim-title" id="lbl-real-img-title">TCP 真實影像分塊解析模擬 (HTML5 Canvas)</div>
@@ -346,7 +671,9 @@
                 </div>
                 <div class="form-group">
                     <label id="lbl-img-url">設定測試影像來源 URL (Source URL)：</label>
-                    <input type="text" id="imgUrlInput" value="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1200&q=80" onchange="initSourceImage()">
+                    <input type="text" id="imgUrlInput"
+                        value="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1200&q=80"
+                        onchange="initSourceImage()">
                 </div>
                 <div class="canvas-container">
                     <canvas id="realImageCanvas"></canvas>
@@ -439,8 +766,8 @@
             }
         };
 
-        let currentLang = 'en';
-        let simulationMode = 'discrete'; 
+        let currentLang = 'zh';
+        let simulationMode = 'discrete';
         let isRunning = false;
         let rtTimer = null;
         let congestionChartInstance = null;
@@ -448,7 +775,7 @@
         let sourceImage = new Image();
         const IMG_COLS = 20;
         const IMG_ROWS = 20;
-        const TOTAL_BLOCKS = IMG_COLS * IMG_ROWS; 
+        const TOTAL_BLOCKS = IMG_COLS * IMG_ROWS;
 
         let rtState = {
             n: 0,
@@ -460,7 +787,7 @@
             wMax: 128,
             cubicEpoch: 0,
             imageBlocksLoaded: 0,
-            completionRound: null, // Track exact completion n
+            completionRound: null,
             manualDropFlag: false,
             xLabels: [],
             yValues: []
@@ -474,7 +801,7 @@
             currentLang = currentLang === 'zh' ? 'en' : 'zh';
             document.getElementById('lang-toggle-btn').innerText = currentLang === 'zh' ? 'English' : '中文';
             updateStaticUIStrings();
-            
+
             const lang = i18n[currentLang];
             if (simulationMode === 'realtime') {
                 if (isRunning) document.getElementById('btn-realtime').innerText = lang.btnRealtimePause;
@@ -504,7 +831,7 @@
             headerThs[1].innerText = lang.thCwnd;
             headerThs[2].innerText = lang.thSsthresh;
             headerThs[3].innerText = lang.thState;
-            
+
             const badge = document.getElementById('mode-badge');
             if (simulationMode === 'discrete') {
                 badge.className = "mode-badge mode-discrete";
@@ -514,7 +841,7 @@
                 badge.className = "mode-badge mode-rt";
                 badge.innerText = lang.badgeRealtime;
             }
-            
+
             if (congestionChartInstance) {
                 congestionChartInstance.options.plugins.title.text = lang.chartTitle;
                 congestionChartInstance.data.datasets[0].label = lang.chartLabel;
@@ -545,7 +872,7 @@
         function hardReset() {
             clearInterval(rtTimer);
             isRunning = false;
-            
+
             rtState.n = 0;
             rtState.cwnd = parseInt(document.getElementById('cwnd1').value);
             rtState.ssthresh = parseInt(document.getElementById('ssthresh').value);
@@ -555,14 +882,14 @@
             rtState.wMax = rtState.loss;
             rtState.cubicEpoch = 0;
             rtState.imageBlocksLoaded = 0;
-            rtState.completionRound = null; // Clear completion state
+            rtState.completionRound = null;
             rtState.manualDropFlag = false;
             rtState.xLabels = [];
             rtState.yValues = [];
 
             document.getElementById('real-img-progress').innerText = "0%";
             document.querySelector('#simulationDataTable tbody').innerHTML = '';
-            
+
             const lang = i18n[currentLang];
             if (simulationMode === 'discrete') {
                 executeDiscrete20Rounds();
@@ -570,14 +897,14 @@
                 document.getElementById('btn-realtime').innerText = lang.btnRealtimeStart;
                 document.getElementById('summaryReport').innerHTML = "Environment reset. Ready for live stream.";
                 renderChart(rtState.xLabels, rtState.yValues);
-                renderCanvasImage(); 
+                renderCanvasImage();
             }
         }
 
         function switchMode(mode) {
             const lang = i18n[currentLang];
             simulationMode = mode;
-            
+
             if (mode === 'discrete') {
                 isRunning = false;
                 clearInterval(rtTimer);
@@ -588,18 +915,18 @@
             } else {
                 document.getElementById('speed-group').style.display = 'block';
                 document.getElementById('btn-drop').disabled = false;
-                
+
                 if (!isRunning) {
                     isRunning = true;
                     document.getElementById('btn-realtime').innerText = lang.btnRealtimePause;
-                    
+
                     if (rtState.n === 0) {
                         rtState.cwnd = parseInt(document.getElementById('cwnd1').value);
                         rtState.ssthresh = parseInt(document.getElementById('ssthresh').value);
                         rtState.loss = parseInt(document.getElementById('loss').value);
                         rtState.droprate = parseFloat(document.getElementById('droprate').value);
                     }
-                    
+
                     const speed = parseInt(document.getElementById('speed').value);
                     rtTimer = setInterval(advanceRealtimeTick, speed);
                 } else {
@@ -618,7 +945,7 @@
             let loss = parseInt(document.getElementById('loss').value);
             let droprate = parseFloat(document.getElementById('droprate').value);
             let algo = document.getElementById('algoType').value;
-            
+
             let tbody = document.querySelector('#simulationDataTable tbody');
             let currentStageStr = lang.stageSlowStart;
             let recoverySum = 0;
@@ -627,7 +954,7 @@
 
             let wMax = loss;
             let cubicEpoch = 0;
-            
+
             let accumulatedBlocks = 0;
             let completionRoundDiscrete = null;
 
@@ -679,25 +1006,25 @@
                     if (isDroppedThisRound) {
                         ssthresh = Math.max(2, Math.floor(cwnd / 2));
                         let nextStage = "";
-                        if (algo === "Tahoe") { 
-                            cwnd = 1; 
-                            nextStage = lang.stageSlowStart; 
-                        } else { 
-                            cwnd = ssthresh; 
-                            nextStage = lang.stageRecovery; 
+                        if (algo === "Tahoe") {
+                            cwnd = 1;
+                            nextStage = lang.stageSlowStart;
+                        } else {
+                            cwnd = ssthresh;
+                            nextStage = lang.stageRecovery;
                         }
                         displayCwnd = (algo === "Tahoe") ? ssthresh * 2 : cwnd * 2;
-                        if(displayCwnd > loss) displayCwnd = loss;
+                        if (displayCwnd > loss) displayCwnd = loss;
                         displayStage = dropReasonStr + " -> " + nextStage;
                         currentStageStr = nextStage;
                     } else {
                         if (currentStageStr.includes(lang.stageSlowStart)) {
                             displayCwnd = cwnd;
-                            if (cwnd * 2 >= ssthresh) { 
-                                cwnd = ssthresh; 
-                                currentStageStr = lang.stageAvoidance; 
-                            } else { 
-                                cwnd = cwnd * 2; 
+                            if (cwnd * 2 >= ssthresh) {
+                                cwnd = ssthresh;
+                                currentStageStr = lang.stageAvoidance;
+                            } else {
+                                cwnd = cwnd * 2;
                             }
                         } else {
                             displayCwnd = cwnd;
@@ -713,8 +1040,7 @@
 
                 if (!isDroppedThisRound) {
                     if (n >= 14 && n <= 18) recoverySum += displayCwnd;
-                    
-                    // Unified Discrete block scaling matching Real-time behavior
+
                     let roundIncrement = Math.max(1, Math.ceil(displayCwnd * (25 / loss)));
                     if (accumulatedBlocks < TOTAL_BLOCKS) {
                         accumulatedBlocks += roundIncrement;
@@ -732,23 +1058,211 @@
                 } else if (n >= 14 && n <= 18) {
                     tr.style.backgroundColor = "#eff6ff";
                 }
-                tr.innerHTML = `<td>${n}</td><td><b>${displayCwnd}</b></td><td>${algo==="BBR"?"N/A":ssthresh}</td><td>${displayStage}</td>`;
+                tr.innerHTML = `<td>${n}</td><td><b>${displayCwnd}</b></td><td>${algo === "BBR" ? "N/A" : ssthresh}</td><td>${displayStage}</td>`;
                 tbody.appendChild(tr);
             }
 
             document.getElementById('summaryReport').innerHTML = lang.reportDiscrete.replace('{algo}', algo) + `<span style='color:#ef4444; font-size:20px;'>${recoverySum} MSS</span>`;
             renderChart(xLabels, yValues);
-            
+
             rtState.imageBlocksLoaded = accumulatedBlocks;
             rtState.completionRound = completionRoundDiscrete;
             renderCanvasImage();
         }
 
+        let batchChartInstance = null;
+
+        // 核心修改：動態自訂多輪次與多實驗次數的大樣本模擬函數
+        // 核心修改：動態自訂多輪次與多實驗次數的大樣本模擬函數
+        function runBatchSimulation() {
+            const loss = parseInt(document.getElementById('batchLoss').value);
+            const dropRate = parseFloat(document.getElementById('batchDropRate').value);
+            const rounds = parseInt(document.getElementById('batchRounds').value) || 100;
+            const runs = parseInt(document.getElementById('batchRuns').value) || 20;
+
+            const algorithms = ['Tahoe', 'Reno', 'CUBIC', 'BBR'];
+            let results = {};
+            let chartDatasets = [];
+            const colors = {
+                'Tahoe': '#ef4444',
+                'Reno': '#f59e0b',
+                'CUBIC': '#10b981',
+                'BBR': '#3b82f6'
+            };
+
+            algorithms.forEach(algo => {
+                // 用於疊加計算每一輪(n)的均值數組
+                let aggregatedHistory = new Array(rounds).fill(0);
+                let totalCwndSum = 0;
+                let allCwndValues = [];
+                let completionRoundsList = [];
+
+                // 重複跑 runs 次取統計期望值 (Monte Carlo)
+                for (let r = 0; r < runs; r++) {
+                    let cwnd = 1;
+                    let ssthresh = 64;
+                    let wMax = loss;
+                    let cubicEpoch = 0;
+                    let blocksLoaded = 0;
+                    let completionRoundOfRun = null;
+
+                    for (let n = 1; n <= rounds; n++) {
+                        let isDropped = (dropRate > 0 && (Math.random() * 100 < dropRate));
+                        if (algo !== 'BBR' && cwnd >= loss) isDropped = true;
+
+                        if (algo === 'BBR') {
+                            cwnd = loss;
+                        } else if (algo === 'CUBIC') {
+                            if (isDropped) {
+                                wMax = cwnd;
+                                ssthresh = Math.max(2, Math.floor(cwnd * 0.7));
+                                cwnd = Math.max(1, ssthresh);
+                                cubicEpoch = 0;
+                            } else {
+                                if (cwnd < ssthresh && n < 6) {
+                                    cwnd = Math.min(ssthresh, cwnd * 2);
+                                } else {
+                                    cubicEpoch++;
+                                    let cubicValue = Math.round(0.05 * Math.pow(cubicEpoch - 3, 3) + wMax);
+                                    cwnd = Math.min(loss, Math.max(1, cubicValue));
+                                }
+                            }
+                        } else {
+                            if (isDropped) {
+                                ssthresh = Math.max(2, Math.floor(cwnd / 2));
+                                cwnd = (algo === 'Tahoe') ? 1 : ssthresh;
+                            } else {
+                                if (cwnd < ssthresh) {
+                                    cwnd = Math.min(ssthresh, cwnd * 2);
+                                } else {
+                                    cwnd += Math.max(1, Math.floor(loss / 50));
+                                }
+                            }
+                        }
+
+                        if (cwnd > loss) cwnd = loss;
+
+                        // 資料整合
+                        aggregatedHistory[n - 1] += cwnd;
+                        totalCwndSum += cwnd;
+                        allCwndValues.push(cwnd);
+
+                        // 影像下載塊計算邏輯
+                        if (!isDropped && completionRoundOfRun === null) {
+                            let baseIncrement = Math.max(1, Math.ceil(cwnd * (25 / loss)));
+                            blocksLoaded += baseIncrement;
+                            if (blocksLoaded >= 400) {
+                                completionRoundOfRun = n;
+                            }
+                        }
+                    }
+                    if (completionRoundOfRun !== null) {
+                        completionRoundsList.push(completionRoundOfRun);
+                    }
+                }
+
+                // 計算當前演算法的整體統計指標
+                const meanHistory = aggregatedHistory.map(val => val / runs); // 各輪次 CWND 期望值
+                const avgThroughput = totalCwndSum / (rounds * runs);         // 所有樣本總平均值
+
+                // 標準差計算 (σ)
+                const squareDiffs = allCwndValues.map(value => {
+                    const diff = value - avgThroughput;
+                    return diff * diff;
+                });
+                const avgSquareDiff = squareDiffs.reduce((a, b) => a + b, 0) / allCwndValues.length;
+                const stdDev = Math.sqrt(avgSquareDiff);
+
+                // 💡 修復點 1：將 completionRate 預先宣告在外層，解決 ReferenceError 死當問題
+                let displayCompletion = "無法完成";
+                let completionRate = 0; 
+                
+                if (completionRoundsList.length > 0) {
+                    let sumComp = completionRoundsList.reduce((a, b) => a + b, 0);
+                    let avgComp = sumComp / completionRoundsList.length;
+                    completionRate = Math.round((completionRoundsList.length / runs) * 100);
+                    displayCompletion = `${avgComp.toFixed(1)} 輪 (完成率 ${completionRate}%)`;
+                }
+
+                results[algo] = {
+                    avg: avgThroughput.toFixed(1),
+                    stdDev: stdDev.toFixed(1),
+                    completionRound: displayCompletion,
+                    completionRate: completionRate
+                };
+
+                // 推入圖表數據集
+                chartDatasets.push({
+                    label: algo,
+                    data: meanHistory,
+                    borderColor: colors[algo],
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.1
+                });
+            });
+
+            // 💡 修復點 2：清理掉多餘的巢狀迴圈，只有乾淨的一層迴圈
+            let tbody = document.querySelector('#batchResultsTable tbody');
+            tbody.innerHTML = ''; 
+
+            algorithms.forEach(algo => {
+                let tr = document.createElement('tr');
+
+                // 只有當完成率等於 0 或者顯示為「無法完成」時，字體才顯示紅色
+                const isFailed = results[algo].completionRate === 0 || results[algo].completionRound === "無法完成";
+                const statusColor = isFailed ? '#ef4444' : '#10b981';
+
+                tr.innerHTML = `
+                    <td><strong>${algo}</strong></td>
+                    <td>${results[algo].avg} MSS</td>
+                    <td>${results[algo].stdDev}</td>
+                    <td style="color: ${statusColor}; font-weight: bold;">
+                        ${results[algo].completionRound}
+                    </td>
+                `;
+                tbody.appendChild(tr); 
+            });
+
+            // 更新統計對比折線圖
+            const ctx = document.getElementById('batchCongestionChart').getContext('2d');
+            if (batchChartInstance) batchChartInstance.destroy();
+
+            const labels = Array.from({ length: rounds }, (_, i) => i + 1);
+
+            batchChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: chartDatasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 500 },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `多樣本期望值收斂對比 (Loss=${loss}, Drop Rate=${dropRate}%, 共 ${runs} 次 × ${rounds} 輪)`,
+                            font: { size: 14, weight: 'bold' }
+                        },
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: '傳輸輪次 (n)' } },
+                        y: { title: { display: true, text: '平均窗口大小 (MSS)' }, min: 0, max: loss + 10 }
+                    }
+                }
+            });
+        }
+
+
         function advanceRealtimeTick() {
             const lang = i18n[currentLang];
             let algo = document.getElementById('algoType').value;
             let speed = document.getElementById('speed').value;
-            
+
             rtState.n++;
             let isDroppedThisRound = false;
             let dropReasonStr = lang.stageLossPoint;
@@ -758,7 +1272,7 @@
             if (rtState.manualDropFlag) {
                 isDroppedThisRound = true;
                 dropReasonStr = lang.stageManualDrop;
-                rtState.manualDropFlag = false; 
+                rtState.manualDropFlag = false;
             } else if (isRandomEnvDrop) {
                 isDroppedThisRound = true;
                 dropReasonStr = lang.stageEnvDrop;
@@ -833,13 +1347,12 @@
             if (!isDroppedThisRound) {
                 baseIncrement = Math.max(1, Math.ceil(rtState.cwnd * (25 / rtState.loss)));
             }
-            
-            // Check first completion instance in real-time execution
+
             if (rtState.imageBlocksLoaded < TOTAL_BLOCKS) {
                 rtState.imageBlocksLoaded += baseIncrement;
                 if (rtState.imageBlocksLoaded >= TOTAL_BLOCKS) {
                     rtState.imageBlocksLoaded = TOTAL_BLOCKS;
-                    rtState.completionRound = rtState.n; 
+                    rtState.completionRound = rtState.n;
                 }
             }
             renderCanvasImage();
@@ -847,11 +1360,11 @@
             let tbody = document.querySelector('#simulationDataTable tbody');
             let tr = document.createElement('tr');
             if (isDroppedThisRound) {
-                tr.style.backgroundColor = "#fee2e2"; 
+                tr.style.backgroundColor = "#fee2e2";
                 tr.style.color = "#b91c1c";
             }
-            tr.innerHTML = `<td>${rtState.n}</td><td><b>${rtState.cwnd}</b></td><td>${algo==="BBR"?"N/A":rtState.ssthresh}</td><td>${rtState.currentStageStr}</td>`;
-            tbody.insertBefore(tr, tbody.firstChild); 
+            tr.innerHTML = `<td>${rtState.n}</td><td><b>${rtState.cwnd}</b></td><td>${algo === "BBR" ? "N/A" : rtState.ssthresh}</td><td>${rtState.currentStageStr}</td>`;
+            tbody.insertBefore(tr, tbody.firstChild);
 
             document.getElementById('summaryReport').innerHTML = lang.reportRealtime
                 .replace('{speed}', speed)
@@ -871,18 +1384,18 @@
         function animatePipePackets(cwnd) {
             const stream = document.getElementById('packetStream');
             let speedFactor = parseFloat(document.getElementById('loss').value) / 40;
-            let duration = Math.max(0.05, 2.0 - (cwnd / (10 * speedFactor))); 
+            let duration = Math.max(0.05, 2.0 - (cwnd / (10 * speedFactor)));
             stream.style.animation = `none`;
-            stream.offsetHeight; 
+            stream.offsetHeight;
             stream.style.animation = `pipeFlow ${duration}s linear infinite`;
         }
 
         function initSourceImage() {
             const url = document.getElementById('imgUrlInput').value;
-            sourceImage.crossOrigin = "Anonymous"; 
+            sourceImage.crossOrigin = "Anonymous";
             sourceImage.src = url;
             sourceImage.onload = () => {
-                if(simulationMode === 'discrete' && rtState.n === 0) hardReset();
+                if (simulationMode === 'discrete' && rtState.n === 0) hardReset();
                 else renderCanvasImage();
             };
         }
@@ -890,7 +1403,7 @@
         function renderCanvasImage() {
             const canvas = document.getElementById('realImageCanvas');
             const ctx = canvas.getContext('2d');
-            
+
             if (!sourceImage.complete || sourceImage.naturalWidth === 0) return;
 
             canvas.width = sourceImage.naturalWidth;
@@ -905,9 +1418,9 @@
                 for (let x = 0; x < IMG_COLS; x++) {
                     if (blocksDrawn < rtState.imageBlocksLoaded) {
                         ctx.drawImage(
-                            sourceImage, 
-                            x * blockW, y * blockH, blockW, blockH, 
-                            x * blockW, y * blockH, blockW, blockH  
+                            sourceImage,
+                            x * blockW, y * blockH, blockW, blockH,
+                            x * blockW, y * blockH, blockW, blockH
                         );
                     } else {
                         ctx.fillStyle = "rgba(226, 232, 240, 0.85)";
@@ -919,8 +1432,7 @@
 
             let percentage = Math.min(100, Math.round((rtState.imageBlocksLoaded / TOTAL_BLOCKS) * 100));
             let progressText = `${percentage}%`;
-            
-            // Append completion round if the transmission finished successfully
+
             if (percentage === 100 && rtState.completionRound !== null) {
                 progressText += i18n[currentLang].imgCompleted.replace('{n}', rtState.completionRound);
             }
@@ -930,7 +1442,7 @@
         function renderChart(labels, dataValues) {
             const lang = i18n[currentLang];
             const ctx = document.getElementById('bilingualCongestionChart').getContext('2d');
-            
+
             if (congestionChartInstance) {
                 congestionChartInstance.destroy();
             }
@@ -956,23 +1468,23 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    animation: simulationMode === 'discrete', 
+                    animation: simulationMode === 'discrete',
                     plugins: {
-                        title: { 
-                            display: true, 
-                            text: lang.chartTitle, 
-                            font: { size: isMobile ? 11 : 13, weight: 'bold', family: 'system-ui' } 
+                        title: {
+                            display: true,
+                            text: lang.chartTitle,
+                            font: { size: isMobile ? 11 : 13, weight: 'bold', family: 'system-ui' }
                         },
-                        legend: { display: !isMobile } 
+                        legend: { display: !isMobile }
                     },
                     scales: {
-                        x: { 
+                        x: {
                             title: { display: !isMobile, text: lang.chartXAxis },
                             ticks: { maxTicksLimit: isMobile ? 8 : 15 }
                         },
-                        y: { 
-                            title: { display: !isMobile, text: lang.chartYAxis }, 
-                            min: 0 
+                        y: {
+                            title: { display: !isMobile, text: lang.chartYAxis },
+                            min: 0
                         }
                     }
                 }
@@ -984,14 +1496,15 @@
         document.head.appendChild(style);
 
         window.addEventListener('resize', () => {
-            if(congestionChartInstance) renderChart(rtState.xLabels, rtState.yValues);
+            if (congestionChartInstance) renderChart(rtState.xLabels, rtState.yValues);
         });
 
-        window.onload = function() {
+        window.onload = function () {
             initSourceImage();
             updateStaticUIStrings();
             hardReset();
         };
     </script>
 </body>
+
 </html>

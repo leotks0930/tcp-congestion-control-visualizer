@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -513,65 +513,66 @@
 <body>
 
     <div class="header-container">
-        <h2 id="main-title">TCP 擁塞控制演算法數學數列動態模擬器</h2>
-        <button class="lang-btn" id="lang-toggle-btn" onclick="toggleLanguage()">English</button>
+        <h2 id="main-title">TCP Congestion Control Simulator</h2>
+        <button class="lang-btn" id="lang-toggle-btn" onclick="toggleLanguage()">中文</button>
     </div>
 
     <div class="main-container">
         <div class="control-panel">
             <div class="panel-header">
-                <h3 id="panel-title">數學模型與參數調節</h3>
-                <span id="mode-badge" class="mode-badge mode-discrete">離散迭代模式</span>
+                <h3 id="panel-title">Mathematical Model</h3>
+                <span id="mode-badge" class="mode-badge mode-discrete">Discrete Mode</span>
             </div>
 
             <div class="form-group">
-                <label id="lbl-algo" for="algoType">選擇擁塞控制演算法模型：</label>
+                <label id="lbl-algo" for="algoType">Select Algorithmic Model:</label>
                 <select id="algoType" onchange="hardReset()">
-                    <option value="Tahoe">TCP Tahoe (分段線性-斷崖重置)</option>
-                    <option value="Reno">TCP Reno (分段線性-平滑恢復)</option>
-                    <option value="CUBIC">TCP CUBIC (高階三次多項式模型)</option>
-                    <option value="BBR">Google BBR (動態狀態機最優直線)</option>
+                    <option value="Tahoe">TCP Tahoe (Piecewise Linear - Sharp Reset)</option>
+                    <option value="Reno">TCP Reno (Piecewise Linear - Smooth Recovery)</option>
+                    <option value="CUBIC">TCP CUBIC (High-order Cubic Polynomial)</option>
+                    <option value="BBR">Google BBR (Dynamic State Machine Optimal Line)</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label><span id="lbl-cwnd">初始窗口首項 CWND₁ (MSS)：</span> <span class="slider-val"
+                <label><span id="lbl-cwnd">Initial Window CWND₁ (MSS):</span> <span class="slider-val"
                         id="val-cwnd1">1</span></label>
                 <input type="range" id="cwnd1" value="1" min="1" max="50" step="1" oninput="syncSliderVal(this)">
             </div>
             <div class="form-group">
-                <label><span id="lbl-ssthresh">動態慢啟動閾值 ssthresh：</span> <span class="slider-val"
+                <label><span id="lbl-ssthresh">Boundary Threshold ssthresh:</span> <span class="slider-val"
                         id="val-ssthresh">64</span></label>
                 <input type="range" id="ssthresh" value="64" min="2" max="200" step="1"
                     oninput="syncSliderVal(this); updateRuntimeParams();">
             </div>
             <div class="form-group">
-                <label><span id="lbl-loss">動態網路耐受上限 Loss (MSS)：</span> <span class="slider-val"
+                <label><span id="lbl-loss">Link Capacity Ceiling Loss (MSS):</span> <span class="slider-val"
                         id="val-loss">128</span></label>
                 <input type="range" id="loss" value="128" min="1" max="300" step="1"
                     oninput="syncSliderVal(this); updateRuntimeParams();">
             </div>
 
             <div class="form-group" id="droprate-group">
-                <label><span id="lbl-droprate">自動隨機丟包率 Drop Rate (%)：</span> <span class="slider-val"
+                <label><span id="lbl-droprate">Auto Random Drop Rate (%):</span> <span class="slider-val"
                         id="val-droprate">0</span></label>
                 <input type="range" id="droprate" value="0" min="0" max="100" step="0.5"
                     oninput="syncSliderVal(this); updateRuntimeParams();">
             </div>
 
             <div class="form-group" id="speed-group" style="display:none;">
-                <label><span id="lbl-speed">實時模擬 RTT 步長速度 (ms)：</span> <span class="slider-val"
+                <label><span id="lbl-speed">Real-time RTT Step Duration (ms):</span> <span class="slider-val"
                         id="val-speed">600</span></label>
                 <input type="range" id="speed" value="600" min="0" max="1000" step="10"
                     oninput="syncSliderVal(this); restartTimerIfRunning();">
             </div>
 
             <div class="btn-grid">
-                <button class="btn-primary" id="btn-discrete" onclick="switchMode('discrete')">20輪靜態迭代</button>
-                <button class="btn-warning" id="btn-reset" onclick="hardReset()">重置環境</button>
-                <button class="btn-secondary" id="btn-realtime" onclick="switchMode('realtime')">啟動實時串流</button>
-                <button class="btn-danger" id="btn-drop" onclick="triggerSuddenDrop()" disabled>⚠️ 突然丟包一次 (Trigger
-                    Sudden Drop)</button>
+                <button class="btn-primary" id="btn-discrete" onclick="switchMode('discrete')">20-Round Static</button>
+                <button class="btn-warning" id="btn-reset" onclick="hardReset()">Reset Env</button>
+                <button class="btn-secondary" id="btn-realtime" onclick="switchMode('realtime')">▶ Start RT
+                    Stream</button>
+                <button class="btn-danger" id="btn-drop" onclick="triggerSuddenDrop()" disabled>⚠️ Trigger Sudden Drop
+                    Now</button>
             </div>
         </div>
 
@@ -597,10 +598,10 @@
                     <table class="matrix-table" id="simulationDataTable">
                         <thead>
                             <tr id="table-header">
-                                <th>輪次 (n)</th>
-                                <th>擁塞窗口 (CWNDₙ)</th>
-                                <th>實時閾值 (ssthreshₙ)</th>
-                                <th>函數遞推運行階段狀態</th>
+                                <th>Round (n)</th>
+                                <th>Congestion Window (CWNDₙ)</th>
+                                <th>Real-time ssthreshₙ</th>
+                                <th>Functional Recurrence State</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -611,11 +612,11 @@
             <div class="card" id="batch-sim-card">
                 <div class="panel-header" style="margin-bottom: 10px; padding-bottom: 5px;">
                     <h3 id="panel-title-batch" style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #0f172a;">
-                        多樣本蒙地卡羅統計分析</h3>
+                        Multi-Sample Monte Carlo Statistical Analysis</h3>
                 </div>
                 <div class="form-group" style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
                     <div style="flex: 1; min-width: 110px;">
-                        <label>測試 Loss:</label>
+                        <label id="lbl-batch-loss">Test Loss:</label>
                         <select id="batchLoss" class="form-control">
                             <option value="64">64 MSS</option>
                             <option value="128" selected>128 MSS</option>
@@ -623,38 +624,39 @@
                         </select>
                     </div>
                     <div style="flex: 1; min-width: 110px;">
-                        <label>測試 Drop Rate:</label>
+                        <label id="lbl-batch-drop">Test Drop Rate:</label>
                         <select id="batchDropRate" class="form-control">
-                            <option value="5">5% (輕度)</option>
-                            <option value="10">10% (中度)</option>
-                            <option value="20">20% (嚴苛)</option>
+                            <option value="5">5% (Light)</option>
+                            <option value="10">10% (Moderate)</option>
+                            <option value="20">20% (Severe)</option>
                         </select>
                     </div>
                     <div style="flex: 1; min-width: 110px;">
-                        <label>單次實驗輪次 (Rounds):</label>
+                        <label id="lbl-batch-rounds">Rounds per Run:</label>
                         <input type="number" id="batchRounds" class="form-control" value="100" min="10" max="1000">
                     </div>
                     <div style="flex: 1; min-width: 110px;">
-                        <label>重複執行次數 (Runs):</label>
+                        <label id="lbl-batch-runs">Total Runs:</label>
                         <input type="number" id="batchRuns" class="form-control" value="20" min="1" max="1000">
                     </div>
                 </div>
-                <button class="btn-secondary" onclick="runBatchSimulation()" style="width: 100%; margin-bottom: 15px;">▶
-                    執行大樣本多輪次統計對比</button>
+                <button id="btn-run-batch" class="btn-secondary" onclick="runBatchSimulation()"
+                    style="width: 100%; margin-bottom: 15px;">▶ Run Large-Sample Multi-Round Analysis</button>
 
                 <div class="table-wrapper" style="max-height: none; height: auto;">
                     <table class="matrix-table" id="batchResultsTable">
                         <thead>
-                            <tr>
-                                <th>演算法</th>
-                                <th>總平均吞吐量 (CWND)</th>
-                                <th>波動標準差 (σ)</th>
-                                <th>影像平均完成輪次 (n)</th>
+                            <tr id="batch-table-header">
+                                <th>Algorithm</th>
+                                <th>Avg Throughput (CWND)</th>
+                                <th>Fluctuation Std Dev (σ)</th>
+                                <th>Avg Completion Round (n)</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td colspan="4" style="text-align: center; color: #64748b;">點擊上方按鈕執行統計分析</td>
+                                <td id="batch-placeholder" colspan="4" style="text-align: center; color: #64748b;">Click
+                                    the button above to execute statistical analysis</td>
                             </tr>
                         </tbody>
                     </table>
@@ -666,11 +668,11 @@
 
             <div class="card">
                 <div class="image-sim-header">
-                    <div class="image-sim-title" id="lbl-real-img-title">TCP 真實影像分塊解析模擬 (HTML5 Canvas)</div>
+                    <div class="image-sim-title" id="lbl-real-img-title">TCP Real Image Chunk Simulation (Canvas)</div>
                     <div class="real-img-progress" id="real-img-progress">0%</div>
                 </div>
                 <div class="form-group">
-                    <label id="lbl-img-url">設定測試影像來源 URL (Source URL)：</label>
+                    <label id="lbl-img-url">Set Test Image Source URL:</label>
                     <input type="text" id="imgUrlInput"
                         value="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1200&q=80"
                         onchange="initSourceImage()">
@@ -722,7 +724,31 @@
                 chartLabel: "窗口值 CWND (MSS)",
                 chartXAxis: "傳輸輪次 (RTT Round)",
                 chartYAxis: "窗口大小 Window Size (MSS)",
-                imgCompleted: " (完全傳輸用時: {n} 個 n)"
+                imgCompleted: " (完全傳輸用時: {n} 個 n)",
+                envReset: "環境已重置。準備好實時串流。",
+                optTahoe: "TCP Tahoe (分段線性-斷崖重置)",
+                optReno: "TCP Reno (分段線性-平滑恢復)",
+                optCUBIC: "TCP CUBIC (高階三次多項式模型)",
+                optBBR: "Google BBR (動態狀態機最優直線)",
+                panelTitleBatch: "多樣本蒙地卡羅統計分析",
+                lblBatchLoss: "測試 Loss:",
+                lblBatchDrop: "測試 Drop Rate:",
+                lblBatchRounds: "單次實驗輪次 (Rounds):",
+                lblBatchRuns: "重複執行次數 (Runs):",
+                optBatchDropLight: "5% (輕度)",
+                optBatchDropModerate: "10% (中度)",
+                optBatchDropSevere: "20% (嚴苛)",
+                btnBatchRun: "▶ 執行大樣本多輪次統計對比",
+                thBatchAlgo: "演算法",
+                thBatchAvg: "總平均吞吐量 (CWND)",
+                thBatchStd: "波動標準差 (σ)",
+                thBatchComp: "影像平均完成輪次 (n)",
+                batchPlaceholder: "點擊上方按鈕執行統計分析",
+                batchFailed: "無法完成",
+                batchSuccessText: "{avg} 輪 (完成率 {rate}%)",
+                batchChartTitle: "多樣本期望值收斂對比 (Loss={loss}, Drop Rate={drop}%, 共 {runs} 次 × {rounds} 輪)",
+                batchChartX: "傳輸輪次 (n)",
+                batchChartY: "平均窗口大小 (MSS)"
             },
             en: {
                 mainTitle: "TCP Congestion Control Advanced Simulator",
@@ -762,11 +788,36 @@
                 chartLabel: "Window Value CWND (MSS)",
                 chartXAxis: "Transmission Rounds (RTT Round)",
                 chartYAxis: "Window Size (MSS)",
-                imgCompleted: " (Fully transmitted in {n} rounds)"
+                imgCompleted: " (Fully transmitted in {n} rounds)",
+                envReset: "Environment reset. Ready for live stream.",
+                optTahoe: "TCP Tahoe (Piecewise Linear - Sharp Reset)",
+                optReno: "TCP Reno (Piecewise Linear - Smooth Recovery)",
+                optCUBIC: "TCP CUBIC (High-order Cubic Polynomial)",
+                optBBR: "Google BBR (Dynamic State Machine Optimal Line)",
+                panelTitleBatch: "Multi-Sample Monte Carlo Statistical Analysis",
+                lblBatchLoss: "Test Loss:",
+                lblBatchDrop: "Test Drop Rate:",
+                lblBatchRounds: "Rounds per Run:",
+                lblBatchRuns: "Total Runs:",
+                optBatchDropLight: "5% (Light)",
+                optBatchDropModerate: "10% (Moderate)",
+                optBatchDropSevere: "20% (Severe)",
+                btnBatchRun: "▶ Run Large-Sample Multi-Round Analysis",
+                thBatchAlgo: "Algorithm",
+                thBatchAvg: "Avg Throughput (CWND)",
+                thBatchStd: "Fluctuation Std Dev (σ)",
+                thBatchComp: "Avg Completion Round (n)",
+                batchPlaceholder: "Click the button above to execute statistical analysis",
+                batchFailed: "Incomplete",
+                batchSuccessText: "{avg} Rounds (Completion Rate {rate}%)",
+                batchChartTitle: "Multi-Sample Convergence Comparison (Loss={loss}, Drop Rate={drop}%, {runs} Runs × {rounds} Rounds)",
+                batchChartX: "Transmission Round (n)",
+                batchChartY: "Avg Window Size (MSS)"
             }
         };
 
-        let currentLang = 'zh';
+        // 從 localStorage 讀取儲存的語系，如果沒有紀錄就預設為英文 'en'
+        let currentLang = localStorage.getItem('tcp_sim_lang') || 'en';
         let simulationMode = 'discrete';
         let isRunning = false;
         let rtTimer = null;
@@ -798,20 +849,19 @@
         }
 
         function toggleLanguage() {
-            currentLang = currentLang === 'zh' ? 'en' : 'zh';
-            document.getElementById('lang-toggle-btn').innerText = currentLang === 'zh' ? 'English' : '中文';
-            updateStaticUIStrings();
+            // 決定要切換過去的新語言
+            const newLang = currentLang === 'zh' ? 'en' : 'zh';
 
-            const lang = i18n[currentLang];
-            if (simulationMode === 'realtime') {
-                if (isRunning) document.getElementById('btn-realtime').innerText = lang.btnRealtimePause;
-                else if (rtState.n > 0) document.getElementById('btn-realtime').innerText = lang.btnRealtimeResume;
-                else document.getElementById('btn-realtime').innerText = lang.btnRealtimeStart;
-            }
+            // 把新語言寫入 localStorage
+            localStorage.setItem('tcp_sim_lang', newLang);
+
+            // 觸發整個網頁強制重新載入
+            window.location.reload();
         }
 
         function updateStaticUIStrings() {
             const lang = i18n[currentLang];
+            document.getElementById('lang-toggle-btn').innerText = currentLang === 'zh' ? 'English' : '中文';
             document.getElementById('main-title').innerText = lang.mainTitle;
             document.getElementById('panel-title').innerText = lang.panelTitle;
             document.querySelector(`label[for="algoType"]`).innerText = lang.lblAlgo;
@@ -826,11 +876,44 @@
             document.getElementById('lbl-real-img-title').innerText = lang.lblRealImgTitle;
             document.getElementById('lbl-img-url').innerText = lang.lblImgUrl;
 
+            // Batch panel strings
+            document.getElementById('panel-title-batch').innerText = lang.panelTitleBatch;
+            document.getElementById('lbl-batch-loss').innerText = lang.lblBatchLoss;
+            document.getElementById('lbl-batch-drop').innerText = lang.lblBatchDrop;
+            document.getElementById('lbl-batch-rounds').innerText = lang.lblBatchRounds;
+            document.getElementById('lbl-batch-runs').innerText = lang.lblBatchRuns;
+            document.getElementById('btn-run-batch').innerText = lang.btnBatchRun;
+
+            // Select Dropdown text updates
+            const algoSelect = document.getElementById('algoType');
+            algoSelect.options[0].text = lang.optTahoe;
+            algoSelect.options[1].text = lang.optReno;
+            algoSelect.options[2].text = lang.optCUBIC;
+            algoSelect.options[3].text = lang.optBBR;
+
+            const dropSelect = document.getElementById('batchDropRate');
+            dropSelect.options[0].text = lang.optBatchDropLight;
+            dropSelect.options[1].text = lang.optBatchDropModerate;
+            dropSelect.options[2].text = lang.optBatchDropSevere;
+
             const headerThs = document.querySelectorAll('#table-header th');
             headerThs[0].innerText = lang.thN;
             headerThs[1].innerText = lang.thCwnd;
             headerThs[2].innerText = lang.thSsthresh;
             headerThs[3].innerText = lang.thState;
+
+            const batchThs = document.querySelectorAll('#batch-table-header th');
+            if (batchThs.length >= 4) {
+                batchThs[0].innerText = lang.thBatchAlgo;
+                batchThs[1].innerText = lang.thBatchAvg;
+                batchThs[2].innerText = lang.thBatchStd;
+                batchThs[3].innerText = lang.thBatchComp;
+            }
+
+            const placeholder = document.getElementById('batch-placeholder');
+            if (placeholder) {
+                placeholder.innerText = lang.batchPlaceholder;
+            }
 
             const badge = document.getElementById('mode-badge');
             if (simulationMode === 'discrete') {
@@ -872,13 +955,14 @@
         function hardReset() {
             clearInterval(rtTimer);
             isRunning = false;
+            const lang = i18n[currentLang];
 
             rtState.n = 0;
             rtState.cwnd = parseInt(document.getElementById('cwnd1').value);
             rtState.ssthresh = parseInt(document.getElementById('ssthresh').value);
             rtState.loss = parseInt(document.getElementById('loss').value);
             rtState.droprate = parseFloat(document.getElementById('droprate').value);
-            rtState.currentStageStr = i18n[currentLang].stageSlowStart;
+            rtState.currentStageStr = lang.stageSlowStart;
             rtState.wMax = rtState.loss;
             rtState.cubicEpoch = 0;
             rtState.imageBlocksLoaded = 0;
@@ -890,12 +974,11 @@
             document.getElementById('real-img-progress').innerText = "0%";
             document.querySelector('#simulationDataTable tbody').innerHTML = '';
 
-            const lang = i18n[currentLang];
             if (simulationMode === 'discrete') {
                 executeDiscrete20Rounds();
             } else {
                 document.getElementById('btn-realtime').innerText = lang.btnRealtimeStart;
-                document.getElementById('summaryReport').innerHTML = "Environment reset. Ready for live stream.";
+                document.getElementById('summaryReport').innerHTML = lang.envReset;
                 renderChart(rtState.xLabels, rtState.yValues);
                 renderCanvasImage();
             }
@@ -1072,9 +1155,8 @@
 
         let batchChartInstance = null;
 
-        // 核心修改：動態自訂多輪次與多實驗次數的大樣本模擬函數
-        // 核心修改：動態自訂多輪次與多實驗次數的大樣本模擬函數
         function runBatchSimulation() {
+            const lang = i18n[currentLang];
             const loss = parseInt(document.getElementById('batchLoss').value);
             const dropRate = parseFloat(document.getElementById('batchDropRate').value);
             const rounds = parseInt(document.getElementById('batchRounds').value) || 100;
@@ -1091,13 +1173,11 @@
             };
 
             algorithms.forEach(algo => {
-                // 用於疊加計算每一輪(n)的均值數組
                 let aggregatedHistory = new Array(rounds).fill(0);
                 let totalCwndSum = 0;
                 let allCwndValues = [];
                 let completionRoundsList = [];
 
-                // 重複跑 runs 次取統計期望值 (Monte Carlo)
                 for (let r = 0; r < runs; r++) {
                     let cwnd = 1;
                     let ssthresh = 64;
@@ -1142,12 +1222,10 @@
 
                         if (cwnd > loss) cwnd = loss;
 
-                        // 資料整合
                         aggregatedHistory[n - 1] += cwnd;
                         totalCwndSum += cwnd;
                         allCwndValues.push(cwnd);
 
-                        // 影像下載塊計算邏輯
                         if (!isDropped && completionRoundOfRun === null) {
                             let baseIncrement = Math.max(1, Math.ceil(cwnd * (25 / loss)));
                             blocksLoaded += baseIncrement;
@@ -1161,11 +1239,9 @@
                     }
                 }
 
-                // 計算當前演算法的整體統計指標
-                const meanHistory = aggregatedHistory.map(val => val / runs); // 各輪次 CWND 期望值
-                const avgThroughput = totalCwndSum / (rounds * runs);         // 所有樣本總平均值
+                const meanHistory = aggregatedHistory.map(val => val / runs);
+                const avgThroughput = totalCwndSum / (rounds * runs);
 
-                // 標準差計算 (σ)
                 const squareDiffs = allCwndValues.map(value => {
                     const diff = value - avgThroughput;
                     return diff * diff;
@@ -1173,15 +1249,16 @@
                 const avgSquareDiff = squareDiffs.reduce((a, b) => a + b, 0) / allCwndValues.length;
                 const stdDev = Math.sqrt(avgSquareDiff);
 
-                // 💡 修復點 1：將 completionRate 預先宣告在外層，解決 ReferenceError 死當問題
-                let displayCompletion = "無法完成";
-                let completionRate = 0; 
-                
+                let displayCompletion = lang.batchFailed;
+                let completionRate = 0;
+
                 if (completionRoundsList.length > 0) {
                     let sumComp = completionRoundsList.reduce((a, b) => a + b, 0);
                     let avgComp = sumComp / completionRoundsList.length;
                     completionRate = Math.round((completionRoundsList.length / runs) * 100);
-                    displayCompletion = `${avgComp.toFixed(1)} 輪 (完成率 ${completionRate}%)`;
+                    displayCompletion = lang.batchSuccessText
+                        .replace('{avg}', avgComp.toFixed(1))
+                        .replace('{rate}', completionRate);
                 }
 
                 results[algo] = {
@@ -1191,7 +1268,6 @@
                     completionRate: completionRate
                 };
 
-                // 推入圖表數據集
                 chartDatasets.push({
                     label: algo,
                     data: meanHistory,
@@ -1203,15 +1279,12 @@
                 });
             });
 
-            // 💡 修復點 2：清理掉多餘的巢狀迴圈，只有乾淨的一層迴圈
             let tbody = document.querySelector('#batchResultsTable tbody');
-            tbody.innerHTML = ''; 
+            tbody.innerHTML = '';
 
             algorithms.forEach(algo => {
                 let tr = document.createElement('tr');
-
-                // 只有當完成率等於 0 或者顯示為「無法完成」時，字體才顯示紅色
-                const isFailed = results[algo].completionRate === 0 || results[algo].completionRound === "無法完成";
+                const isFailed = results[algo].completionRate === 0 || results[algo].completionRound === lang.batchFailed;
                 const statusColor = isFailed ? '#ef4444' : '#10b981';
 
                 tr.innerHTML = `
@@ -1222,10 +1295,9 @@
                         ${results[algo].completionRound}
                     </td>
                 `;
-                tbody.appendChild(tr); 
+                tbody.appendChild(tr);
             });
 
-            // 更新統計對比折線圖
             const ctx = document.getElementById('batchCongestionChart').getContext('2d');
             if (batchChartInstance) batchChartInstance.destroy();
 
@@ -1244,19 +1316,22 @@
                     plugins: {
                         title: {
                             display: true,
-                            text: `多樣本期望值收斂對比 (Loss=${loss}, Drop Rate=${dropRate}%, 共 ${runs} 次 × ${rounds} 輪)`,
+                            text: lang.batchChartTitle
+                                .replace('{loss}', loss)
+                                .replace('{drop}', dropRate)
+                                .replace('{runs}', runs)
+                                .replace('{rounds}', rounds),
                             font: { size: 14, weight: 'bold' }
                         },
                         legend: { position: 'top' }
                     },
                     scales: {
-                        x: { title: { display: true, text: '傳輸輪次 (n)' } },
-                        y: { title: { display: true, text: '平均窗口大小 (MSS)' }, min: 0, max: loss + 10 }
+                        x: { title: { display: true, text: lang.batchChartX } },
+                        y: { title: { display: true, text: lang.batchChartY }, min: 0, max: loss + 10 }
                     }
                 }
             });
         }
-
 
         function advanceRealtimeTick() {
             const lang = i18n[currentLang];

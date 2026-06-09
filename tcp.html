@@ -74,7 +74,7 @@
             display: flex; 
             flex-direction: column; 
             gap: 20px; 
-            min-width: 0; /* Prevents flex blowout */
+            min-width: 0; 
         }
         
         .card { 
@@ -135,7 +135,7 @@
         }
         button { 
             border: none; 
-            padding: 14px 16px; /* Larger touch targets */
+            padding: 14px 16px; 
             border-radius: 8px; 
             font-weight: 600; 
             cursor: pointer; 
@@ -192,7 +192,7 @@
         .table-wrapper { 
             max-height: 250px; 
             overflow-y: auto; 
-            overflow-x: auto; /* Allow horizontal scroll on mobile */
+            overflow-x: auto; 
             border: 1px solid #e2e8f0; 
             border-radius: 8px; 
             -webkit-overflow-scrolling: touch;
@@ -237,7 +237,7 @@
         @media (min-width: 992px) {
             .main-container { flex-direction: row; align-items: flex-start; }
             .control-panel { 
-                width: 360px; /* Fixed width on desktop */
+                width: 360px; 
                 flex-shrink: 0;
                 position: sticky;
                 top: 20px;
@@ -611,11 +611,13 @@
             let cwnd = parseInt(document.getElementById('cwnd1').value);
             let ssthresh = parseInt(document.getElementById('ssthresh').value);
             let loss = parseInt(document.getElementById('loss').value);
+            let droprate = parseFloat(document.getElementById('droprate').value);
             let algo = document.getElementById('algoType').value;
             
             let tbody = document.querySelector('#simulationDataTable tbody');
             let currentStageStr = lang.stageSlowStart;
             let recoverySum = 0;
+            let totalStaticPackets = 0;
             let xLabels = [];
             let yValues = [];
 
@@ -625,60 +627,97 @@
             for (let n = 1; n <= 20; n++) {
                 let displayCwnd = cwnd;
                 let displayStage = currentStageStr;
-                
+                let isDroppedThisRound = false;
+                let dropReasonStr = lang.stageLossPoint;
+
+                // Evaluate random loss logic for discrete environments
+                let isRandomEnvDrop = (droprate > 0 && (Math.random() * 100 < droprate));
+
+                if (isRandomEnvDrop) {
+                    isDroppedThisRound = true;
+                    dropReasonStr = lang.stageEnvDrop;
+                } else if (n === 12) {
+                    isDroppedThisRound = true;
+                    dropReasonStr = lang.stageLossPoint;
+                } else if (algo !== "BBR" && cwnd >= loss) {
+                    isDroppedThisRound = true;
+                    dropReasonStr = lang.stageLossPoint;
+                }
+
                 if (algo === "BBR") {
                     displayCwnd = loss;
                     displayStage = lang.stageBbr;
+                    if (isDroppedThisRound && droprate > 0) {
+                        displayStage += ` (${dropReasonStr})`;
+                    }
                 } else if (algo === "CUBIC") {
-                    if (cwnd < ssthresh && n < 6) {
+                    if (isDroppedThisRound) {
+                        wMax = cwnd;
+                        ssthresh = Math.max(2, Math.floor(cwnd * 0.7));
+                        cwnd = Math.max(1, ssthresh);
+                        cubicEpoch = 0;
+                        displayCwnd = wMax;
+                        displayStage = dropReasonStr + " -> " + lang.stageRecovery;
+                    } else if (cwnd < ssthresh && n < 6) {
                         displayCwnd = cwnd;
                         cwnd = Math.min(ssthresh, cwnd * 2);
                         displayStage = lang.stageSlowStart;
-                    } else if (n === 12) {
-                        displayCwnd = loss;
-                        wMax = loss;
-                        ssthresh = Math.floor(loss * 0.7);
-                        cwnd = ssthresh;
-                        cubicEpoch = 0;
-                        displayStage = lang.stageLossPoint;
-                    } else if (n > 12) {
-                        cubicEpoch++;
-                        let cubicValue = Math.round(0.08 * Math.pow(cubicEpoch - 3, 3) + wMax);
-                        displayCwnd = Math.min(loss, Math.max(1, cubicValue));
-                        displayStage = displayCwnd >= wMax ? lang.stageCubic2 : lang.stageCubic1;
                     } else {
                         displayCwnd = cwnd;
-                        cwnd = cwnd + Math.max(1, Math.floor(loss / 30));
-                        displayStage = lang.stageAvoidance;
+                        cubicEpoch++;
+                        let cubicValue = Math.round(0.08 * Math.pow(cubicEpoch - 3, 3) + wMax);
+                        cwnd = Math.min(loss, Math.max(1, cubicValue));
+                        displayStage = displayCwnd >= wMax ? lang.stageCubic2 : lang.stageCubic1;
                     }
                 } else {
-                    if (currentStageStr === "CRASH") {
-                        ssthresh = Math.max(2, Math.floor(loss / 2));
-                        if (algo === "Tahoe") { cwnd = 1; currentStageStr = lang.stageSlowStart; }
-                        else { cwnd = ssthresh; currentStageStr = lang.stageRecovery; }
-                        displayCwnd = cwnd;
-                        displayStage = currentStageStr + " (Reset)";
-                    } else if (currentStageStr === lang.stageSlowStart) {
-                        displayCwnd = cwnd;
-                        if (cwnd * 2 >= ssthresh) { cwnd = ssthresh; currentStageStr = lang.stageAvoidance; }
-                        else { cwnd = cwnd * 2; }
-                    } else if (currentStageStr === lang.stageAvoidance || currentStageStr === lang.stageRecovery) {
-                        displayCwnd = cwnd;
-                        cwnd = cwnd + Math.max(1, Math.floor(loss / 40));
-                        if (cwnd >= loss) { currentStageStr = "CRASH"; }
-                    }
-                    if (n === 12) {
-                        displayStage = lang.stageLossPoint;
-                        currentStageStr = "CRASH";
+                    if (isDroppedThisRound) {
+                        ssthresh = Math.max(2, Math.floor(cwnd / 2));
+                        let nextStage = "";
+                        if (algo === "Tahoe") { 
+                            cwnd = 1; 
+                            nextStage = lang.stageSlowStart; 
+                        } else { 
+                            cwnd = ssthresh; 
+                            nextStage = lang.stageRecovery; 
+                        }
+                        displayCwnd = (algo === "Tahoe") ? ssthresh * 2 : cwnd * 2; // Approximate window before crush
+                        if(displayCwnd > loss) displayCwnd = loss;
+                        displayStage = dropReasonStr + " -> " + nextStage;
+                        currentStageStr = nextStage;
+                    } else {
+                        if (currentStageStr.includes(lang.stageSlowStart)) {
+                            displayCwnd = cwnd;
+                            if (cwnd * 2 >= ssthresh) { 
+                                cwnd = ssthresh; 
+                                currentStageStr = lang.stageAvoidance; 
+                            } else { 
+                                cwnd = cwnd * 2; 
+                            }
+                        } else {
+                            displayCwnd = cwnd;
+                            cwnd = cwnd + Math.max(1, Math.floor(loss / 40));
+                            currentStageStr = currentStageStr.includes(lang.stageRecovery) ? lang.stageRecovery : lang.stageAvoidance;
+                            displayStage = currentStageStr;
+                        }
                     }
                 }
 
                 xLabels.push(n);
                 yValues.push(displayCwnd);
-                if (n >= 14 && n <= 18) recoverySum += displayCwnd;
+
+                // Pure mathematical delivery logic: drops block data transmission completely
+                if (!isDroppedThisRound) {
+                    if (n >= 14 && n <= 18) recoverySum += displayCwnd;
+                    totalStaticPackets += displayCwnd;
+                }
 
                 let tr = document.createElement('tr');
-                if (n >= 14 && n <= 18) tr.style.backgroundColor = "#eff6ff";
+                if (isDroppedThisRound) {
+                    tr.style.backgroundColor = "#fee2e2";
+                    tr.style.color = "#b91c1c";
+                } else if (n >= 14 && n <= 18) {
+                    tr.style.backgroundColor = "#eff6ff";
+                }
                 tr.innerHTML = `<td>${n}</td><td><b>${displayCwnd}</b></td><td>${algo==="BBR"?"N/A":ssthresh}</td><td>${displayStage}</td>`;
                 tbody.appendChild(tr);
             }
@@ -686,7 +725,7 @@
             document.getElementById('summaryReport').innerHTML = lang.reportDiscrete.replace('{algo}', algo) + `<span style='color:#ef4444; font-size:20px;'>${recoverySum} MSS</span>`;
             renderChart(xLabels, yValues);
             
-            let totalStaticPackets = yValues.reduce((a, b) => a + b, 0);
+            // Fix discrete mode mapping: 0 successful transmission packets means 0 image chunks loaded
             rtState.imageBlocksLoaded = Math.min(TOTAL_BLOCKS, Math.ceil(totalStaticPackets * (TOTAL_BLOCKS / (loss * 15)))); 
             renderCanvasImage();
         }
@@ -776,10 +815,15 @@
 
             animatePipePackets(rtState.cwnd);
 
-            let baseIncrement = Math.max(1, Math.ceil(rtState.cwnd * (25 / rtState.loss)));
+            // FIX: If a packet drops or drop rate is 100%, increment is zero. No transmission occurs.
+            let baseIncrement = 0;
+            if (!isDroppedThisRound) {
+                baseIncrement = Math.max(1, Math.ceil(rtState.cwnd * (25 / rtState.loss)));
+            }
+            
             rtState.imageBlocksLoaded += baseIncrement;
             if (rtState.imageBlocksLoaded >= TOTAL_BLOCKS) {
-                rtState.imageBlocksLoaded = 0; 
+                rtState.imageBlocksLoaded = TOTAL_BLOCKS; // Hold at 100% until manually reset
             }
             renderCanvasImage();
 
@@ -868,7 +912,6 @@
                 congestionChartInstance.destroy();
             }
 
-            // Adjust chart configuration to fit better on mobile screens
             const isMobile = window.innerWidth < 768;
 
             congestionChartInstance = new Chart(ctx, {
@@ -897,7 +940,7 @@
                             text: lang.chartTitle, 
                             font: { size: isMobile ? 11 : 13, weight: 'bold', family: 'system-ui' } 
                         },
-                        legend: { display: !isMobile } // Hide legend on very small screens to save space
+                        legend: { display: !isMobile } 
                     },
                     scales: {
                         x: { 
@@ -917,7 +960,6 @@
         style.innerHTML = `@keyframes pipeFlow { 0% { left: -100%; } 100% { left: 100%; } }`;
         document.head.appendChild(style);
 
-        // Re-render chart on resize to adjust title/legend sizing
         window.addEventListener('resize', () => {
             if(congestionChartInstance) renderChart(rtState.xLabels, rtState.yValues);
         });

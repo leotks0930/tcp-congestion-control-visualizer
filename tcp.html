@@ -191,6 +191,7 @@
         /* Tables */
         .table-wrapper { 
             max-height: 250px; 
+            height: 250px;
             overflow-y: auto; 
             overflow-x: auto; 
             border: 1px solid #e2e8f0; 
@@ -210,7 +211,7 @@
             font-size: 1rem; font-weight: 700; color: #0f172a; 
         }
         .real-img-progress {
-            color: #2563eb; font-family: ui-monospace, monospace; font-size: 1.25rem; font-weight: bold;
+            color: #2563eb; font-family: ui-monospace, monospace; font-size: 1.15rem; font-weight: bold;
         }
         .canvas-container { 
             width: 100%; aspect-ratio: 16/9; 
@@ -280,11 +281,11 @@
             </div>
             <div class="form-group">
                 <label><span id="lbl-ssthresh">動態慢啟動閾值 ssthresh：</span> <span class="slider-val" id="val-ssthresh">64</span></label>
-                <input type="range" id="ssthresh" value="64" min="2" max="200" step="2" oninput="syncSliderVal(this); updateRuntimeParams();">
+                <input type="range" id="ssthresh" value="64" min="2" max="200" step="1" oninput="syncSliderVal(this); updateRuntimeParams();">
             </div>
             <div class="form-group">
                 <label><span id="lbl-loss">動態網路耐受上限 Loss (MSS)：</span> <span class="slider-val" id="val-loss">128</span></label>
-                <input type="range" id="loss" value="128" min="10" max="300" step="5" oninput="syncSliderVal(this); updateRuntimeParams();">
+                <input type="range" id="loss" value="128" min="1" max="300" step="1" oninput="syncSliderVal(this); updateRuntimeParams();">
             </div>
             
             <div class="form-group" id="droprate-group">
@@ -294,7 +295,7 @@
 
             <div class="form-group" id="speed-group" style="display:none;">
                 <label><span id="lbl-speed">實時模擬 RTT 步長速度 (ms)：</span> <span class="slider-val" id="val-speed">600</span></label>
-                <input type="range" id="speed" value="600" min="100" max="2000" step="50" oninput="syncSliderVal(this); restartTimerIfRunning();">
+                <input type="range" id="speed" value="600" min="0" max="1000" step="10" oninput="syncSliderVal(this); restartTimerIfRunning();">
             </div>
 
             <div class="btn-grid">
@@ -393,7 +394,8 @@
                 chartTitle: "擁塞窗口（CWND）隨傳輸輪次（n）的動態遞推曲線",
                 chartLabel: "窗口值 CWND (MSS)",
                 chartXAxis: "傳輸輪次 (RTT Round)",
-                chartYAxis: "窗口大小 Window Size (MSS)"
+                chartYAxis: "窗口大小 Window Size (MSS)",
+                imgCompleted: " (完全傳輸用時: {n} 個 n)"
             },
             en: {
                 mainTitle: "TCP Congestion Control Advanced Simulator",
@@ -432,7 +434,8 @@
                 chartTitle: "Dynamic Recurrence Curve of CWND over Transmission Rounds (n)",
                 chartLabel: "Window Value CWND (MSS)",
                 chartXAxis: "Transmission Rounds (RTT Round)",
-                chartYAxis: "Window Size (MSS)"
+                chartYAxis: "Window Size (MSS)",
+                imgCompleted: " (Fully transmitted in {n} rounds)"
             }
         };
 
@@ -457,6 +460,7 @@
             wMax: 128,
             cubicEpoch: 0,
             imageBlocksLoaded: 0,
+            completionRound: null, // Track exact completion n
             manualDropFlag: false,
             xLabels: [],
             yValues: []
@@ -551,6 +555,7 @@
             rtState.wMax = rtState.loss;
             rtState.cubicEpoch = 0;
             rtState.imageBlocksLoaded = 0;
+            rtState.completionRound = null; // Clear completion state
             rtState.manualDropFlag = false;
             rtState.xLabels = [];
             rtState.yValues = [];
@@ -617,12 +622,14 @@
             let tbody = document.querySelector('#simulationDataTable tbody');
             let currentStageStr = lang.stageSlowStart;
             let recoverySum = 0;
-            let totalStaticPackets = 0;
             let xLabels = [];
             let yValues = [];
 
             let wMax = loss;
             let cubicEpoch = 0;
+            
+            let accumulatedBlocks = 0;
+            let completionRoundDiscrete = null;
 
             for (let n = 1; n <= 20; n++) {
                 let displayCwnd = cwnd;
@@ -630,7 +637,6 @@
                 let isDroppedThisRound = false;
                 let dropReasonStr = lang.stageLossPoint;
 
-                // Evaluate random loss logic for discrete environments
                 let isRandomEnvDrop = (droprate > 0 && (Math.random() * 100 < droprate));
 
                 if (isRandomEnvDrop) {
@@ -680,7 +686,7 @@
                             cwnd = ssthresh; 
                             nextStage = lang.stageRecovery; 
                         }
-                        displayCwnd = (algo === "Tahoe") ? ssthresh * 2 : cwnd * 2; // Approximate window before crush
+                        displayCwnd = (algo === "Tahoe") ? ssthresh * 2 : cwnd * 2;
                         if(displayCwnd > loss) displayCwnd = loss;
                         displayStage = dropReasonStr + " -> " + nextStage;
                         currentStageStr = nextStage;
@@ -705,10 +711,18 @@
                 xLabels.push(n);
                 yValues.push(displayCwnd);
 
-                // Pure mathematical delivery logic: drops block data transmission completely
                 if (!isDroppedThisRound) {
                     if (n >= 14 && n <= 18) recoverySum += displayCwnd;
-                    totalStaticPackets += displayCwnd;
+                    
+                    // Unified Discrete block scaling matching Real-time behavior
+                    let roundIncrement = Math.max(1, Math.ceil(displayCwnd * (25 / loss)));
+                    if (accumulatedBlocks < TOTAL_BLOCKS) {
+                        accumulatedBlocks += roundIncrement;
+                        if (accumulatedBlocks >= TOTAL_BLOCKS) {
+                            accumulatedBlocks = TOTAL_BLOCKS;
+                            if (completionRoundDiscrete === null) completionRoundDiscrete = n;
+                        }
+                    }
                 }
 
                 let tr = document.createElement('tr');
@@ -725,8 +739,8 @@
             document.getElementById('summaryReport').innerHTML = lang.reportDiscrete.replace('{algo}', algo) + `<span style='color:#ef4444; font-size:20px;'>${recoverySum} MSS</span>`;
             renderChart(xLabels, yValues);
             
-            // Fix discrete mode mapping: 0 successful transmission packets means 0 image chunks loaded
-            rtState.imageBlocksLoaded = Math.min(TOTAL_BLOCKS, Math.ceil(totalStaticPackets * (TOTAL_BLOCKS / (loss * 15)))); 
+            rtState.imageBlocksLoaded = accumulatedBlocks;
+            rtState.completionRound = completionRoundDiscrete;
             renderCanvasImage();
         }
 
@@ -815,15 +829,18 @@
 
             animatePipePackets(rtState.cwnd);
 
-            // FIX: If a packet drops or drop rate is 100%, increment is zero. No transmission occurs.
             let baseIncrement = 0;
             if (!isDroppedThisRound) {
                 baseIncrement = Math.max(1, Math.ceil(rtState.cwnd * (25 / rtState.loss)));
             }
             
-            rtState.imageBlocksLoaded += baseIncrement;
-            if (rtState.imageBlocksLoaded >= TOTAL_BLOCKS) {
-                rtState.imageBlocksLoaded = TOTAL_BLOCKS; // Hold at 100% until manually reset
+            // Check first completion instance in real-time execution
+            if (rtState.imageBlocksLoaded < TOTAL_BLOCKS) {
+                rtState.imageBlocksLoaded += baseIncrement;
+                if (rtState.imageBlocksLoaded >= TOTAL_BLOCKS) {
+                    rtState.imageBlocksLoaded = TOTAL_BLOCKS;
+                    rtState.completionRound = rtState.n; 
+                }
             }
             renderCanvasImage();
 
@@ -901,7 +918,13 @@
             }
 
             let percentage = Math.min(100, Math.round((rtState.imageBlocksLoaded / TOTAL_BLOCKS) * 100));
-            document.getElementById('real-img-progress').innerText = `${percentage}%`;
+            let progressText = `${percentage}%`;
+            
+            // Append completion round if the transmission finished successfully
+            if (percentage === 100 && rtState.completionRound !== null) {
+                progressText += i18n[currentLang].imgCompleted.replace('{n}', rtState.completionRound);
+            }
+            document.getElementById('real-img-progress').innerText = progressText;
         }
 
         function renderChart(labels, dataValues) {

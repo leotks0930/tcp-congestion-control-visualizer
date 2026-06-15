@@ -816,7 +816,6 @@
             }
         };
 
-        // 從 localStorage 讀取儲存的語系，如果沒有紀錄就預設為英文 'en'
         let currentLang = localStorage.getItem('tcp_sim_lang') || 'en';
         let simulationMode = 'discrete';
         let isRunning = false;
@@ -849,13 +848,8 @@
         }
 
         function toggleLanguage() {
-            // 決定要切換過去的新語言
             const newLang = currentLang === 'zh' ? 'en' : 'zh';
-
-            // 把新語言寫入 localStorage
             localStorage.setItem('tcp_sim_lang', newLang);
-
-            // 觸發整個網頁強制重新載入
             window.location.reload();
         }
 
@@ -876,7 +870,6 @@
             document.getElementById('lbl-real-img-title').innerText = lang.lblRealImgTitle;
             document.getElementById('lbl-img-url').innerText = lang.lblImgUrl;
 
-            // Batch panel strings
             document.getElementById('panel-title-batch').innerText = lang.panelTitleBatch;
             document.getElementById('lbl-batch-loss').innerText = lang.lblBatchLoss;
             document.getElementById('lbl-batch-drop').innerText = lang.lblBatchDrop;
@@ -884,7 +877,6 @@
             document.getElementById('lbl-batch-runs').innerText = lang.lblBatchRuns;
             document.getElementById('btn-run-batch').innerText = lang.btnBatchRun;
 
-            // Select Dropdown text updates
             const algoSelect = document.getElementById('algoType');
             algoSelect.options[0].text = lang.optTahoe;
             algoSelect.options[1].text = lang.optReno;
@@ -1070,23 +1062,23 @@
                     if (isDroppedThisRound) {
                         wMax = cwnd;
                         ssthresh = Math.max(2, Math.floor(cwnd * 0.7));
-                        cwnd = Math.max(1, ssthresh);
+                        cwnd = ssthresh;
                         cubicEpoch = 0;
                         displayCwnd = wMax;
                         displayStage = dropReasonStr + " -> " + lang.stageRecovery;
-                    } else if (cwnd < ssthresh && n < 6) {
+                    } else if (cwnd < ssthresh) {
                         displayCwnd = cwnd;
                         cwnd = Math.min(ssthresh, cwnd * 2);
+                        cubicEpoch = 0; 
                         displayStage = lang.stageSlowStart;
                     } else {
                         cubicEpoch++;
-                    // 改良版 CUBIC 公式：更明顯的拐點與三次增長
-                    let K = 4; // 拐點大致在第4輪後
-                    let cubicFactor = 0.08 * Math.pow((cubicEpoch - K), 3);
-                    let target = Math.round(wMax + cubicFactor);
-                    cwnd = Math.max(ssthresh, Math.min(loss, target));
-                    displayCwnd = cwnd;
-                    displayStage = (cubicEpoch < K) ? lang.stageCubic1 : lang.stageCubic2;
+                        // 精準 TCP CUBIC 動態函數模型計算
+                        let K = Math.pow(wMax * 0.75, 1 / 3); 
+                        let target = Math.round(0.4 * Math.pow(cubicEpoch - K, 3) + wMax);
+                        cwnd = Math.max(ssthresh, Math.min(loss, target));
+                        displayCwnd = cwnd;
+                        displayStage = (cubicEpoch < K) ? lang.stageCubic1 : lang.stageCubic2;
                     }
                 } else {
                     if (isDroppedThisRound) {
@@ -1199,16 +1191,16 @@
                             if (isDropped) {
                                 wMax = cwnd;
                                 ssthresh = Math.max(2, Math.floor(cwnd * 0.7));
-                                cwnd = Math.max(1, ssthresh);
+                                cwnd = ssthresh;
+                                cubicEpoch = 0;
+                            } else if (cwnd < ssthresh) {
+                                cwnd = Math.min(ssthresh, cwnd * 2);
                                 cubicEpoch = 0;
                             } else {
-                                if (cwnd < ssthresh && n < 6) {
-                                    cwnd = Math.min(ssthresh, cwnd * 2);
-                                } else {
-                                    cubicEpoch++;
-                                    let cubicValue = Math.round(0.05 * Math.pow(cubicEpoch - 3, 3) + wMax);
-                                    cwnd = Math.min(loss, Math.max(1, cubicValue));
-                                }
+                                cubicEpoch++;
+                                let K = Math.pow(wMax * 0.75, 1 / 3);
+                                let target = Math.round(0.4 * Math.pow(cubicEpoch - K, 3) + wMax);
+                                cwnd = Math.max(ssthresh, Math.min(loss, target));
                             }
                         } else {
                             if (isDropped) {
@@ -1368,20 +1360,23 @@
                 }
             } else if (algo === "CUBIC") {
                 if (isDroppedThisRound) {
-                triggerPipeFlashOverflow();
-                rtState.wMax = Math.max(rtState.cwnd, rtState.wMax);
-                rtState.ssthresh = Math.max(2, Math.floor(rtState.cwnd * 0.7));
-                rtState.cwnd = Math.max(1, rtState.ssthresh);
-                rtState.cubicEpoch = 0;
-                rtState.currentStageStr = dropReasonStr + " → " + lang.stageRecovery;
-            } else {
-                rtState.cubicEpoch++;
-                let K = 4;
-                let cubicFactor = 0.08 * Math.pow((rtState.cubicEpoch - K), 3);
-                let target = Math.round(rtState.wMax + cubicFactor);
-                rtState.cwnd = Math.max(rtState.ssthresh, Math.min(rtState.loss, target));
-                rtState.currentStageStr = (rtState.cubicEpoch < K) ? lang.stageCubic1 : lang.stageCubic2;
-            }
+                    triggerPipeFlashOverflow();
+                    rtState.wMax = rtState.cwnd;
+                    rtState.ssthresh = Math.max(2, Math.floor(rtState.cwnd * 0.7));
+                    rtState.cwnd = rtState.ssthresh;
+                    rtState.cubicEpoch = 0;
+                    rtState.currentStageStr = dropReasonStr + " → " + lang.stageRecovery;
+                } else if (rtState.cwnd < rtState.ssthresh) {
+                    rtState.cwnd = Math.min(rtState.ssthresh, rtState.cwnd * 2);
+                    rtState.cubicEpoch = 0;
+                    rtState.currentStageStr = lang.stageSlowStart;
+                } else {
+                    rtState.cubicEpoch++;
+                    let K = Math.pow(rtState.wMax * 0.75, 1 / 3);
+                    let target = Math.round(0.4 * Math.pow(rtState.cubicEpoch - K, 3) + rtState.wMax);
+                    rtState.cwnd = Math.max(rtState.ssthresh, Math.min(rtState.loss, target));
+                    rtState.currentStageStr = (rtState.cubicEpoch < K) ? lang.stageCubic1 : lang.stageCubic2;
+                }
             } else {
                 if (isDroppedThisRound) {
                     triggerPipeFlashOverflow();

@@ -1079,11 +1079,14 @@
                         cwnd = Math.min(ssthresh, cwnd * 2);
                         displayStage = lang.stageSlowStart;
                     } else {
-                        displayCwnd = cwnd;
                         cubicEpoch++;
-                        let cubicValue = Math.round(0.08 * Math.pow(cubicEpoch - 3, 3) + wMax);
-                        cwnd = Math.min(loss, Math.max(1, cubicValue));
-                        displayStage = displayCwnd >= wMax ? lang.stageCubic2 : lang.stageCubic1;
+                    // 改良版 CUBIC 公式：更明顯的拐點與三次增長
+                    let K = 4; // 拐點大致在第4輪後
+                    let cubicFactor = 0.08 * Math.pow((cubicEpoch - K), 3);
+                    let target = Math.round(wMax + cubicFactor);
+                    cwnd = Math.max(ssthresh, Math.min(loss, target));
+                    displayCwnd = cwnd;
+                    displayStage = (cubicEpoch < K) ? lang.stageCubic1 : lang.stageCubic2;
                     }
                 } else {
                     if (isDroppedThisRound) {
@@ -1365,23 +1368,20 @@
                 }
             } else if (algo === "CUBIC") {
                 if (isDroppedThisRound) {
-                    triggerPipeFlashOverflow();
-                    rtState.wMax = rtState.cwnd;
-                    rtState.ssthresh = Math.max(2, Math.floor(rtState.cwnd * 0.7));
-                    rtState.cwnd = Math.max(1, rtState.ssthresh);
-                    rtState.cubicEpoch = 0;
-                    rtState.currentStageStr = dropReasonStr + " -> " + lang.stageRecovery;
-                } else {
-                    if (rtState.cwnd < rtState.ssthresh && rtState.n < 5) {
-                        rtState.cwnd = Math.min(rtState.ssthresh, rtState.cwnd * 2);
-                        rtState.currentStageStr = lang.stageSlowStart;
-                    } else {
-                        rtState.cubicEpoch++;
-                        let cubicValue = Math.round(0.05 * Math.pow(rtState.cubicEpoch - 3, 3) + rtState.wMax);
-                        rtState.cwnd = Math.min(rtState.loss + 5, Math.max(1, cubicValue));
-                        rtState.currentStageStr = rtState.cwnd >= rtState.wMax ? lang.stageCubic2 : lang.stageCubic1;
-                    }
-                }
+                triggerPipeFlashOverflow();
+                rtState.wMax = Math.max(rtState.cwnd, rtState.wMax);
+                rtState.ssthresh = Math.max(2, Math.floor(rtState.cwnd * 0.7));
+                rtState.cwnd = Math.max(1, rtState.ssthresh);
+                rtState.cubicEpoch = 0;
+                rtState.currentStageStr = dropReasonStr + " → " + lang.stageRecovery;
+            } else {
+                rtState.cubicEpoch++;
+                let K = 4;
+                let cubicFactor = 0.08 * Math.pow((rtState.cubicEpoch - K), 3);
+                let target = Math.round(rtState.wMax + cubicFactor);
+                rtState.cwnd = Math.max(rtState.ssthresh, Math.min(rtState.loss, target));
+                rtState.currentStageStr = (rtState.cubicEpoch < K) ? lang.stageCubic1 : lang.stageCubic2;
+            }
             } else {
                 if (isDroppedThisRound) {
                     triggerPipeFlashOverflow();
